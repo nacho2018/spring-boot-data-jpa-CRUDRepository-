@@ -1,10 +1,14 @@
 package com.bolsadeideas.springboot.app.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.bolsadeideas.springboot.app.models.entity.Factura;
+import com.bolsadeideas.springboot.app.models.entity.ItemFactura;
+import com.bolsadeideas.springboot.app.models.service.IFacturaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,6 +25,9 @@ public class ClienteController {
 
 	@Autowired
 	private IClienteService clienteService;
+
+	@Autowired
+	private IFacturaService facturaService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public List<Cliente> listar() {
@@ -88,4 +95,28 @@ public class ClienteController {
 	public ResponseEntity<List<Cliente>> findAllByEmailContainingDomain(@PathVariable(name="domain") String domain){
 		return ResponseEntity.ok().body(clienteService.findAllByEmailContainingDomain(domain));
 	}
+
+	@RequestMapping(value="/findBillsByClient")
+	public ResponseEntity<List<Factura>> findAllBillsByClient(@RequestBody Cliente client){
+
+		if (client == null || client.getId() == null || client.getId() < 0)
+			return ResponseEntity.badRequest().body(null);
+
+		Cliente savedClient = clienteService.findOne(client.getId());
+		if (savedClient == null)
+			return ResponseEntity.ok(new ArrayList<>());
+
+		return ResponseEntity.ok(savedClient.getFacturas());
+
+	}
+
+	@RequestMapping(value="/findAllItemsByBill", method=RequestMethod.POST)
+	public ResponseEntity<List<ItemFactura>> findAllItemsByBill(@RequestBody Factura bill){
+
+		if (bill == null || bill.getId() == null || bill.getId() < 0)
+			return ResponseEntity.badRequest().body(null);
+
+		return  ResponseEntity.ok(facturaService.findAllItemsByBill(bill));
+	}
+
 }

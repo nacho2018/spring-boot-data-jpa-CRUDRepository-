@@ -19,4 +19,8 @@ public interface IClienteService {
 	 List<Cliente> findAllByIdRange(Long from, Long to);
 
 	 List<Cliente> findAllByEmailContainingDomain(String domain);
+
+
+
+
 }
